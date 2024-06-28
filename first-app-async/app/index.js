@@ -2,9 +2,7 @@ const mathUtils = require("./math-utils");
 
 console.log("Program will be blocked :(");
 
-const response1 = request1(200000);
-console.log("**prime numbers**", response1);
-
+request1(2, 1000, 10);
 
 console.log("Now, I'm able to do other works");
 otherRequests();
@@ -12,18 +10,23 @@ otherRequests();
 function otherRequests() {
     setInterval(() => {
         console.log("other requests...");
-    }, 50);
+    }, 1000);
 }
 
-function request1(n) {
-    console.log("**calc prime numbers...**");
-    const start = new Date();
+ function request1(start, end, chunkSize) {
+    let primes = [];
+    console.log("**start calc prime numbers**");
 
-    const primes = mathUtils.getPrimeNumbersWithinRange(2, n);
+    async function processChunk(lowerBound) {
+        if (lowerBound >= end) {
+            console.log("**end calc prime numbers**. Found primes: ", primes.join(", "));
+            return;
+        }
+        let upperBound = Math.min(lowerBound + chunkSize, end);
+        console.log(`calc prime numbers ${lowerBound}...${upperBound}`);
+        primes = primes.concat(mathUtils.getPrimeNumbersWithinRange(lowerBound, upperBound));
+         setTimeout(() => processChunk(lowerBound + chunkSize), 1000);
+    }
 
-    const end = new Date();
-    console.log("**end calc prime numbers**. Elapsed ms: ", end.getTime() - start.getTime());
-
-    return primes;
+     processChunk(start);
 }
-
